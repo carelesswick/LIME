@@ -1,0 +1,79 @@
+# Git metadata / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Build directories
+build/
+cmake-build-*/
+out/
+dist/
+bin/
+lib/
+obj/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# C/C++ compile artifacts
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.obj
+*.pdb
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs/temp
+*.log
+tmp/
+temp/
+
+# Models / weights / inference engine files
+*.onnx
+*.bin
+*.param
+*.pt
+*.pth
+*.ckpt
+*.tflite
+*.engine
+*.ncnn.bin
+*.ncnn.param
+
+# Images / media / dataset
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.webp
+*.gif
+*.tif
+*.tiff
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.csv
+*.tsv
+*.jsonl
+*.npy
+*.npz
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
