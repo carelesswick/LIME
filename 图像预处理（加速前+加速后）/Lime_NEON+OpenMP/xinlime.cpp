@@ -168,10 +168,10 @@ int main() {
     cv::Mat img_out = l->enhance(img_in);  // 进行图像增强
 
     // 显示结果
-    cv::imshow("Enhanced Image", img_out);
+    // cv::imshow("Enhanced Image", img_out);
     cv::imwrite("output.jpg", img_out);
 
-    cv::waitKey(0);  // 等待按键
+    // cv::waitKey(0);  // 等待按键
     return 0;
 }
 /*这段代码实现了一个基于局部亮度增强的图像增强算法，具体来说，它使用了LIME（Low-Light Image Enhancement）方法来增强低光条件下的图像。以下是对代码的详细解释：

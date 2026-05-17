@@ -1,7 +1,7 @@
-#include <opencv2/core/core.hpp> // OpenCV 核心模块，包含了基本的数据结构和算法
-#include <opencv2/highgui/highgui.hpp> // OpenCV GUI 模块，包含了图像和视频的 I/O 函数
-#include <opencv2/imgproc/imgproc.hpp> // OpenCV 图像处理模块，包含了图像处理函数
-#include <opencv2/imgproc/types_c.h>
+// #include <opencv2/core/core.hpp> // OpenCV 核心模块，包含了基本的数据结构和算法
+// #include <opencv2/highgui/highgui.hpp> // OpenCV GUI 模块，包含了图像和视频的 I/O 函数
+// #include <opencv2/imgproc/imgproc.hpp> // OpenCV 图像处理模块，包含了图像处理函数
+// #include <opencv2/imgproc/types_c.h>
 #include <opencv2/opencv.hpp>
 #include <iostream> // 输入输出流库
 #include <cstring>
@@ -676,14 +676,14 @@ int main()
         std::cout<<"Error Input!"<<std::endl; // 输出错误信息
         return -1; // 退出程序
     }
-	cv::imshow("raw_picture", img_in); // 显示原始图片
+	// cv::imshow("raw_picture", img_in); // 显示原始图片
 	LIME::lime* l; // 创建 LIME 算法对象
     l = new LIME::lime(img_in); // 初始化 LIME 算法对象
     img_out = l->enhance(img_in); // 对输入图片进行 LIME 增强处理，得到输出图片
-    cv::imshow("img_lime", img_out); // 显示增强图片
+    // cv::imshow("img_lime", img_out); // 显示增强图片
 	cv::imwrite("output.jpg", img_out);
 	t = (cv::getTickCount() - t) / cv::getTickFrequency();
 	cout << "时间：" << t << "s" << endl;
-	cv::waitKey(0); // 等待按键
+	// cv::waitKey(0); // 等待按键
     return 0;
 }

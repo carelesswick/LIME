@@ -1,4 +1,3 @@
-// #include <opencv2/highgui.hpp>
 // #include <opencv2/core/core.hpp> // OpenCV 核心模块，包含了基本的数据结构和算法
 // #include <opencv2/highgui.hpp> // OpenCV GUI 模块，包含了图像和视频的 I/O 函数
 // #include <opencv2/imgproc/imgproc.hpp> // OpenCV 图像处理模块，包含了图像处理函数
@@ -13,7 +12,7 @@
 
 using namespace std;
 
-namespace LIME 
+namespace LIME //LIME的命名空间
 {
 
     class lime 
@@ -73,11 +72,11 @@ namespace LIME
 	//光照图初始化
     void lime::_init_IllumMap(cv::Mat src){ 
 		// 将输入图像转换为 float CV_32F类型，并进行归一化
-	    src.convertTo(img_norm, CV_32F, 1 / 255.0, 0); 
+	    src.convertTo(img_norm, CV_32F, 1 / 255.0, 0); //第三个参数进行了缩放，也就是归一化。
 		// 获取归一化图像的大小
         cv::Size sz(img_norm.size()); 
-        row = img_norm.rows;
-        col = img_norm.cols;
+        row = img_norm.rows;//rows 对应图像的高度
+        col = img_norm.cols;//cols 对应图像的宽度
 		//构建初始照明图T
         T_hat = lime::getMax(img_norm);  
         //求T_hat的f范数 
@@ -98,10 +97,10 @@ namespace LIME
 	//获取色彩通道最大值
 	cv::Mat lime::getMax(const cv::Mat& bgr)
         {
-            cv::Mat temp_mat(row, col, CV_32F, cv::Scalar::all(0.0));
-            std::vector<cv::Mat> img_norm_rgb;
-            cv::Mat img_norm_b, img_norm_g, img_norm_r;
-            cv::split(bgr, img_norm_rgb);
+            cv::Mat temp_mat(row, col, CV_32F, cv::Scalar::all(0.0));//定义一个全零矩阵
+            std::vector<cv::Mat> img_norm_rgb;//多个矩阵组成的动态数组
+            cv::Mat img_norm_b, img_norm_g, img_norm_r;//定义三个单通道矩阵
+            cv::split(bgr, img_norm_rgb);//将bgr图像分割成三个单通道矩阵，分别存放在img_norm_rgb[0]、img_norm_rgb[1]、img_norm_rgb[2]中
             img_norm_g = img_norm_rgb.at(0);
             img_norm_b = img_norm_rgb.at(1);
             img_norm_r = img_norm_rgb.at(2);
@@ -113,7 +112,7 @@ namespace LIME
             return temp_mat;
         }
 
-	//求解矩阵范数：的代码实现了计算矩阵的 Frobenius 范数，即矩阵中每个元素平方和的平方根。这是用于衡量矩阵的整体“大小”或“能量”的一种方式
+	//求解矩阵范数：计算矩阵的 Frobenius 范数，即矩阵中每个元素平方和的平方根。这是用于衡量矩阵的整体“大小”或“能量”的一种方式
 	float lime::Frobenius(cv::Mat mat)
 	{
 		int row = mat.rows;
@@ -258,7 +257,7 @@ namespace LIME
 
 	//求矩阵导数
 	cv::Mat lime::Dev(int n, int k){   //求一阶导数的方法
-		cv::Mat mat_temp = cv::Mat::eye(n,n,CV_32F);  
+		cv::Mat mat_temp = cv::Mat::eye(n,n,CV_32F);  //eye()函数用于创建一个单位矩阵
 		mat_temp = mat_temp *-1;//让矩阵的对角元素为-1
 		//让矩阵k对角的元素为1
 		if(k > 0){
@@ -309,7 +308,7 @@ namespace LIME
 
 	//图像增强
 	cv::Mat lime::enhance(cv::Mat &src){
-		_init_IllumMap(src);
+		_init_IllumMap(src);//估算初始光照图
 		cv::Size sz(img_norm.size());
 		R = cv::Mat(sz, CV_32F, cv::Scalar::all(0.0));
 		std::vector<cv::Mat> img_norm_rgb; // 定义一个存储三通道分量的向量
@@ -391,7 +390,7 @@ namespace LIME
 
 int main()
 {
-	double t = cv::getTickCount();
+	double t = cv::getTickCount();//记录当前时间
 	cv::Mat img_in = cv::imread("../data/1.jpg");
     cv::Mat img_out;
 	if(img_in.empty()) // 判断读入图片是否成功
@@ -408,5 +407,6 @@ int main()
 	t = (cv::getTickCount() - t) / cv::getTickFrequency();
 	cout << "时间：" << t << "s" << endl;
 	// cv::waitKey(0); // 等待按键
+	//delete l; 
     return 0;
 }
