@@ -81,10 +81,10 @@ namespace LIME //LIME的命名空间
         T_hat = lime::getMax(img_norm);  
         //求T_hat的f范数 
         epsilon = Frobenius(T_hat)*0.001;
-        dv = Dev(row, 1);
-	    dh = Dev(col, -1);
-		float u = dv.at<float>(0,0);
-		float u2 = dh.at<float>(0,0);
+        dv = Dev(row, 1);//dv*图片
+	    dh = Dev(col, -1);//图片*dh
+		//float u = dv.at<float>(0,0);
+		//float u2 = dh.at<float>(0,0);
 		veCDD = cv::Mat(1,row*col, CV_32F, cv::Scalar::all(0.0));
 	   	//定义一维矩阵并初始化为0
         veCDD.at<float>(0,0) = 4;
@@ -141,7 +141,7 @@ namespace LIME //LIME的命名空间
 	cv::Mat lime::solveT(cv::Mat G, cv::Mat Z, float u){  
 		cv::Mat X = G - (Z / u);   //bug
 		int row_temp = X.rows;
-		cv::Mat Xv = X.rowRange(0, row);  
+		cv::Mat Xv = X.rowRange(0, row);  //左闭右开区间进行矩阵行的提取
 		cv::Mat Xh = X.rowRange(row,row_temp);//要取 -1
 		cv::Mat temp = dv*Xv+ Xh*dh;
 		cv::Mat numerator;
@@ -248,15 +248,24 @@ namespace LIME //LIME的命名空间
 
 	//求解权重矩阵
 	void lime::weightStrategy(){ 
-		cv::Mat dTv = dv * T_hat;
-		cv::Mat dTh = T_hat* dh;
-		cv::Mat Wv = 1/ (cv::abs(dTv) + 1);
+		cv::Mat dTv = dv * T_hat;//差分矩阵获得垂直方向梯度
+		cv::Mat dTh = T_hat* dh;//差分矩阵获得水平方向梯度
+		cv::Mat Wv = 1/ (cv::abs(dTv) + 1);//abs() 的作用是对矩阵元素取绝对值，梯度幅值映射成权重
 		cv::Mat Wh = 1/ (cv::abs(dTh) + 1);
-		cv::vconcat(Wv, Wh, W);
+		/**
+		 * 梯度大，说明这个位置变化剧烈，可能是边缘、纹理、噪声
+		 * 梯度小，说明这个位置比较平滑，属于更可信的区域
+			所以取倒数后：
+			梯度大时，权重变小
+			梯度小时，权重变大
+		 * 这正好符合 LIME 里的思路：在优化光照图时，更相信平滑区域，弱化边缘和突变区域的影响。
+		 * 加 1 是为了避免分母为 0，同时让数值更稳定。
+		 */
+		cv::vconcat(Wv, Wh, W);//将wv和wh两个矩阵垂直拼接
 	}
 
-	//求矩阵导数
-	cv::Mat lime::Dev(int n, int k){   //求一阶导数的方法
+	//求矩阵导数（构建差分矩阵）
+	cv::Mat lime::Dev(int n, int k){   
 		cv::Mat mat_temp = cv::Mat::eye(n,n,CV_32F);  //eye()函数用于创建一个单位矩阵
 		mat_temp = mat_temp *-1;//让矩阵的对角元素为-1
 		//让矩阵k对角的元素为1
@@ -352,7 +361,7 @@ namespace LIME //LIME的命名空间
 		float tem;
 		float gamma = 0.8;
 		
-		// 计算当前像素的伽马校正值
+		// 计算当前像素的伽马校正值（没有用到）
 		for (int i = 0; i < row; i++)
 			{
 			for (int j = 0; j < col; j++)
