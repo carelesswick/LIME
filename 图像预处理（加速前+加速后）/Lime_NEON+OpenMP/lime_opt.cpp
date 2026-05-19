@@ -463,10 +463,10 @@ namespace LIME
 	cv::Mat lime::reshape1D(cv::Mat mat){  
 		cv::Mat mat_temp(row,col, CV_32F);
 		
-		for(int i = 0; i < col ; i++){
-		for(int j =0; j< row ; j++){
+		for(int i = 0; i < row ; i++){
+		for(int j =0; j< col ; j++){
 			
-			mat_temp.at<float>(j,i) = mat.at<float>(0,i*row + j);
+			mat_temp.at<float>(i,j) = mat.at<float>(0,i*col + j);
 			}
 		}
 		return mat_temp;       

@@ -197,10 +197,10 @@ namespace LIME //LIME的命名空间
 	cv::Mat lime::reshape1D(cv::Mat mat){  
 		cv::Mat mat_temp(row,col, CV_32F);
 		
-		for(int i = 0; i < col ; i++){
-		for(int j =0; j< row ; j++){
+		for(int i = 0; i < row ; i++){
+		for(int j =0; j< col ; j++){
 			
-			mat_temp.at<float>(j,i) = mat.at<float>(0,i*row + j);
+			mat_temp.at<float>(i,j) = mat.at<float>(0,i*col + j);
 			}
 		}
 		return mat_temp;       
@@ -324,11 +324,13 @@ namespace LIME //LIME的命名空间
 		cv::Mat img_norm_b, img_norm_g, img_norm_r; // 定义三个矩阵，分别用于存储三个通道的分量
 
 		cv::split(img_norm, img_norm_rgb); // 将归一化图像分解为三个通道
+		//单核计算，处理器串行使用，效率低
 		img_norm_g = img_norm_rgb.at(0); // 获取绿色通道
 		img_norm_b = img_norm_rgb.at(1); // 获取蓝色通道
 		img_norm_r = img_norm_rgb.at(2); // 获取红色通道
 		cv::Mat T = optIllumMap();   //计算光照图T
 
+		//单核计算，处理器串行使用，效率低
 		auto g = img_norm_g / T ;// 计算增强后的绿色通道
 		auto b = img_norm_b / T; // 计算增强后的蓝色通道
 		auto r = img_norm_r / T; // 计算增强后的红色通道
