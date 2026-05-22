@@ -21,9 +21,9 @@ else ()
     message(FATAL_ERROR "OpenMP Not Found!")
 endif ()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/ncnn)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+include_directories($ENV{HOME}/LIME/dependencies/ncnn/src)
+include_directories($ENV{HOME}/LIME/dependencies/ncnn/build/src)
+link_directories($ENV{HOME}/LIME/dependencies/ncnn/build/src)
 
 add_executable(unet_ncnn src/unet.cpp)
 target_link_libraries(unet_ncnn ncnn ${OpenCV_LIBS})

@@ -402,7 +402,7 @@ namespace LIME //LIME的命名空间
 int main()
 {
 	double t = cv::getTickCount();//记录当前时间
-	cv::Mat img_in = cv::imread("../data/1.jpg");
+	cv::Mat img_in = cv::imread("../data/1.bmp");
     cv::Mat img_out;
 	if(img_in.empty()) // 判断读入图片是否成功
     {

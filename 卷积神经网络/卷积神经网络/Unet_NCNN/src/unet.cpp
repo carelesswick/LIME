@@ -19,16 +19,16 @@ int main(int argc, char** argv) {
         exit(0);
     }
 
-    ncnn::Net Unet;
+    ncnn::Net Unet;//声明并定义了一个名为 Unet 的 ncnn::Net 类型对象
     // 加载神经网络模型
-    Unet.load_param("../models/model.ncnn.param");
-    Unet.load_model("../models/model.ncnn.bin");
+    Unet.load_param("../models/model.ncnn.param");//模型结构（层定义、连接关系）
+    Unet.load_model("../models/model.ncnn.bin"); // 模型权重（训练好的参数）
 
     int64 tic, toc;
 
-    tic = cv::getTickCount();
+    tic = cv::getTickCount();// 获取当前时间
 
-    cv::Scalar value = Scalar(0,0,0);
+    cv::Scalar value = Scalar(0,0,0);//给图像补黑边
     cv::Mat src;
     cv::Mat tmp;
     src = cv::imread(argv[1]);
@@ -39,6 +39,7 @@ int main(int argc, char** argv) {
     int top = 0, bottom = 0;
     int left = 0, right = 0;
 
+    //copyMakeBorder函数用于在图像周围添加边界（补黑边），将输入的图像调整为正方形的尺寸为tmp
     if (width > height) {
         top = (width - height) / 2;
         bottom = (width - height) - top;
@@ -55,17 +56,17 @@ int main(int argc, char** argv) {
     left = (INPUT_WIDTH*left)/height;
     right = (INPUT_WIDTH*right)/height;
 
-    // 调整图像大小为模型输入的尺寸
+    // 调整图像大小为720*720即tmp1
     cv::Mat tmp1;
-    cv::resize(tmp, tmp1, cv::Size(INPUT_WIDTH, INPUT_HEIGHT), INTER_CUBIC);
+    cv::resize(tmp, tmp1, cv::Size(INPUT_WIDTH, INPUT_HEIGHT), 0,0,INTER_CUBIC);
 
     // 将图像转换为浮点数类型，并归一化到范围 [0, 1]
     cv::Mat image;
     tmp1.convertTo(image, CV_32FC3, 1/255.0);
 
     // cv32fc3 的布局是 hwc ncnn的Mat布局是 chw 需要调整排布
-    float *srcdata = (float*)image.data;
-    float *data = new float[INPUT_WIDTH*INPUT_HEIGHT*3];
+    float *srcdata = (float*)image.data;//是OpenCV的HWC格式的内存指针
+    float *data = new float[INPUT_WIDTH*INPUT_HEIGHT*3];//申请新的内存，用来存CHW格式的数据
     for (int i = 0; i < INPUT_HEIGHT; i++)
        for (int j = 0; j < INPUT_WIDTH; j++)
            for (int k = 0; k < 3; k++) {
@@ -73,22 +74,23 @@ int main(int argc, char** argv) {
            }
 
     // 创建 ncnn::Mat 对象作为输入
-    ncnn::Mat in(image.rows*image.cols*3, data);
-    in = in.reshape(720, 720, 3);
+    ncnn::Mat in(image.rows*image.cols*3, data);//将数据转换为ncnn的Mat格式
+    in = in.reshape(720, 720, 3);//三维
     
+
+    Unet.opt.num_threads = 4;
     // 创建 ncnn::Extractor 对象并设置参数
     ncnn::Extractor ex = Unet.create_extractor();
     // 设置推理的模式和线程数
-    ex.set_light_mode(true);
-    ex.set_num_threads(4);
+    ex.set_light_mode(true);//轻量推理模式
 
     // 输入图像并进行推理
-    ex.input("in0", in);
+    ex.input("in0", in);//输入图像
     ncnn::Mat mask;
-    ex.extract("out0", mask);
+    ex.extract("out0", mask);//输出掩码
 
 #if 1
-    cv::Mat cv_img = cv::Mat::zeros(INPUT_WIDTH,INPUT_HEIGHT,CV_8UC1);
+    cv::Mat cv_img = cv::Mat::zeros(INPUT_WIDTH,INPUT_HEIGHT,CV_8UC1);//这一行在创建并初始化一个灰度图（掩码）
     {
     float *srcdata = (float*)mask.data;
     unsigned char *data = cv_img.data;
@@ -136,8 +138,8 @@ int main(int argc, char** argv) {
     image.copyTo(result);
     result.setTo(cv::Scalar(0,255,0),cv_img);
     cv::imwrite("result.jpg", result);
-    cv::imshow("test", result);
-    cv::waitKey();
+    //cv::imshow("test", result);
+    //cv::waitKey();
 #endif
     return 0;
 }
