@@ -13,6 +13,9 @@ using namespace cv;
 #define INPUT_WIDTH     720
 #define INPUT_HEIGHT    720
 
+/**
+ * UNet语义分割模型的推理程序
+ */
 int main(int argc, char** argv) {
     if (argc < 2) {
         printf("illegal parameters!");
@@ -76,39 +79,38 @@ int main(int argc, char** argv) {
     // 创建 ncnn::Mat 对象作为输入
     ncnn::Mat in(image.rows*image.cols*3, data);//将数据转换为ncnn的Mat格式
     in = in.reshape(720, 720, 3);//三维
-    
 
-    Unet.opt.num_threads = 4;
+    Unet.opt.num_threads = 4;//开启线程
     // 创建 ncnn::Extractor 对象并设置参数
     ncnn::Extractor ex = Unet.create_extractor();
-    // 设置推理的模式和线程数
-    ex.set_light_mode(true);//轻量推理模式
+    // 设置推理的模式
+    ex.set_light_mode(true);//轻量推理模式，可大幅降低内存使用量
 
     // 输入图像并进行推理
     ex.input("in0", in);//输入图像
     ncnn::Mat mask;
-    ex.extract("out0", mask);//输出掩码
+    ex.extract("out0", mask);//输出掩码为mask(CHW)
 
 #if 1
-    cv::Mat cv_img = cv::Mat::zeros(INPUT_WIDTH,INPUT_HEIGHT,CV_8UC1);//这一行在创建并初始化一个灰度图（掩码）
+    cv::Mat cv_img = cv::Mat::zeros(INPUT_WIDTH,INPUT_HEIGHT,CV_8UC1);//8U表示（8位无符号整数），取值范围是 0~255。C1 表示 Channel 1（单通道）即灰度图。
     {
-    float *srcdata = (float*)mask.data;
+    float *srcdata = (float*)mask.data;//
     unsigned char *data = cv_img.data;
 
     // 将输出的掩码转换为灰度图像
     for (int i = 0; i < mask.h; i++)
-       for (int j = 0; j < mask.w; j++) {
+       for (int j = 0; j < mask.w; j++) {//逐像素处理
 #if 1
-         float tmp = srcdata[0*mask.w*mask.h+i*mask.w+j];
-         int maxk = 0;
-         for (int k = 0; k < mask.c; k++) {
+         float tmp = srcdata[0*mask.w*mask.h+i*mask.w+j];//第0类的概率
+         int maxk = 0;//记录最高概率的类别号
+         for (int k = 0; k < mask.c; k++) {// 遍历所有类别
            if (tmp < srcdata[k*mask.w*mask.h+i*mask.w+j]) {
-             tmp = srcdata[k*mask.w*mask.h+i*mask.w+j];
-             maxk = k;
+             tmp = srcdata[k*mask.w*mask.h+i*mask.w+j];// 更新最大值
+             maxk = k;// 记住是第几类
            }
          }
 
-         data[i*INPUT_WIDTH + j] = maxk;
+         data[i*INPUT_WIDTH + j] = maxk;//该像素的值 = 最高概率的类别号
 
          // 去除填充边界
          if ((left > 0) && (right > 0) && ((j < left) || (j >= INPUT_WIDTH - right)))
