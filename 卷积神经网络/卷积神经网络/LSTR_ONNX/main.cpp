@@ -15,7 +15,7 @@ class LSTR
 {
 public:
 	LSTR();
-	Mat detect(Mat& cv_image);
+	Mat detect(Mat& cv_image);// 车道线检测函数, 输入原始图像, 输出带有车道线的图像
 	~LSTR();  // 析构函数, 释放内存
 	
 private:
@@ -27,12 +27,12 @@ private:
 	float mean[3] = { 0.485, 0.456, 0.406 };   // 图像归一化均值
 	float std[3] = { 0.229, 0.224, 0.225 };    // 图像归一化标准差
 	const int len_log_space = 50;
-	float* log_space;
-	// 车道线颜色数组
+	float* log_space;//动态分配的数组指针，用于存储从文件中读取的日志空间数据
+	// 车道线颜色数组，数组的类型是 Scalar，包含8个元素，每个元素表示一种车道线颜色
 	const Scalar lane_colors[8] = { Scalar(68,65,249), Scalar(44,114,243),Scalar(30,150,248),Scalar(74,132,249),Scalar(79,199,249),Scalar(109,190,144),Scalar(142, 144, 77),Scalar(161, 125, 39) };
 
 	Env env = Env(ORT_LOGGING_LEVEL_ERROR, "LSTR");   // ONNX Runtime 环境
-	Ort::Session *ort_session = nullptr;              // ONNX Runtime 会话指针
+	Session *ort_session = nullptr;              // ONNX Runtime 会话指针
 	const ORTCHAR_T* model_path;                      // 模型路径
 	SessionOptions sessionOptions = SessionOptions(); // 会话选项
 	vector<const char*> input_names;   				  // 输入节点名称
